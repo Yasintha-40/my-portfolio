@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yasintha | Portfolio Admin Panel</title>
+  
+  <!-- CSS Stylesheets (Styles from frontend, custom admin from static folder) -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="admin.css">
+  
+  <!-- Boxicons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+
+  <!-- Background Decorative Glowing Blobs -->
+  <div class="glow-wrapper">
+    <div class="glow-blob glow-blob-1"></div>
+    <div class="glow-blob glow-blob-2"></div>
+    <div class="glow-blob glow-blob-3"></div>
+  </div>
+
+  <!--===== LOGIN FORM VIEW =====-->
+  <div class="login-container" id="login-container">
+    <div class="login-card glass">
+      <h1 class="login-logo">Yasintha.</h1>
+      <h2 class="login-subtitle">Portfolio Control Panel</h2>
+      
+      <form id="login-form" autocomplete="off">
+        <div class="login-error" id="login-error">Invalid Username or Password!</div>
+        
+        <div class="form-group">
+          <input type="text" id="login-username" required placeholder=" " class="form-input">
+          <label for="login-username" class="form-label">Username</label>
+        </div>
+        
+        <div class="form-group">
+          <input type="password" id="login-password" required placeholder=" " class="form-input">
+          <label for="login-password" class="form-label">Password</label>
+        </div>
+        
+        <button type="submit" class="btn login-btn">
+          Login to Dashboard <i class='bx bx-log-in-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== ADMIN DASHBOARD SYSTEM WRAPPER =====-->
+  <div class="dashboard-wrapper" id="dashboard-wrapper">
+    
+    <!-- Sidebar navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <i class='bx bx-shield-quarter'></i> Admin Panel
+      </div>
+      
+      <nav class="sidebar-menu">
+        <div class="menu-item active" data-tab="dashboard">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </div>
+        <div class="menu-item" data-tab="skills">
+          <i class='bx bx-brain'></i> Skills Manager
+        </div>
+        <div class="menu-item" data-tab="projects">
+          <i class='bx bx-folder'></i> Projects Manager
+        </div>
+        <div class="menu-item" data-tab="education">
+          <i class='bx bx-graduation'></i> Education
+        </div>
+        <div class="menu-item" data-tab="experience">
+          <i class='bx bx-briefcase'></i> Experience
+        </div>
+        <div class="menu-item" data-tab="certificates">
+          <i class='bx bx-award'></i> Certificates
+        </div>
+        <div class="menu-item" data-tab="messages">
+          <i class='bx bx-message-detail'></i> Inbox Messages
+        </div>
+        <div class="menu-item" data-tab="settings">
+          <i class='bx bx-cog'></i> Settings
+        </div>
+        <div class="menu-item" id="sidebar-menu-logout-btn" style="color: #ef4444; border-top: 1px dashed var(--border-color); margin-top: 0.5rem; padding-top: 1rem;">
+          <i class='bx bx-log-out'></i> Logout
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <a href="/" class="menu-item">
+          <i class='bx bx-arrow-back'></i> View Website
+        </a>
+        <div class="menu-item" id="logout-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.1);">
+          <i class='bx bx-log-out'></i> Logout
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      
+      <!-- Top header bar -->
+      <header class="dashboard-header">
+        <div>
+          <h1 class="dashboard-title" id="tab-title-display">Dashboard Overview</h1>
+          <p class="dashboard-subtitle" id="tab-subtitle-display">Welcome back! Here's your portfolio health summary.</p>
+        </div>
+        <div class="header-actions">
+          <!-- Mobile toggle button -->
+          <div class="nav-mobile-toggle" id="sidebar-toggle-btn">
+            <i class='bx bx-menu'></i>
+          </div>
+          <!-- Theme toggle button -->
+          <div class="theme-btn" id="theme-button" title="Toggle theme">
+            <i class='bx bx-moon'></i>
+          </div>
+          <!-- Top Logout button -->
+          <div class="theme-btn" id="top-logout-btn" title="Logout" style="color: #ef4444; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.15);">
+            <i class='bx bx-log-out'></i>
+          </div>
+        </div>
+      </header>
+
+      <!--===== VIEW 1: DASHBOARD OVERVIEW PANEL =====-->
+      <div class="tab-panel active" id="panel-dashboard">
+        <!-- Overview Grid cards -->
+        <div class="stats-grid">
+          <div class="stat-card glass">
+            <div class="stat-icon"><i class='bx bx-folder-open'></i></div>
+            <div>
+              <div class="stat-num" id="stat-repos">0</div>
+              <div class="stat-label">Active Projects</div>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon"><i class='bx bxl-react'></i></div>
+            <div>
+              <div class="stat-num" id="stat-react">0</div>
+              <div class="stat-label">React Projects</div>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon"><i class='bx bx-message-rounded-dots'></i></div>
+            <div>
+              <div class="stat-num" id="stat-messages">0</div>
+              <div class="stat-label">Inbox Messages</div>
+            </div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-icon"><i class='bx bx-show'></i></div>
+            <div>
+              <div class="stat-num" id="stat-views">2,480</div>
+              <div class="stat-label">Profile Views</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts and widgets row -->
+        <div class="analytics-row">
+          <!-- Line chart container -->
+          <div class="chart-card glass">
+            <div class="chart-header">
+              <h3 class="chart-title">Visitor Analytics (Traffic Trends)</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="trafficChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Quick Messages panel -->
+          <div class="recent-messages-card glass">
+            <div class="chart-header">
+              <h3 class="chart-title">Recent Submissions</h3>
+              <a href="#" onclick="switchTab('messages'); return false;" style="font-size: 0.8rem; color: var(--primary-color);">View All</a>
+            </div>
+            <div class="messages-list" id="recent-messages-list">
+              <!-- Loaded dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--===== VIEW 2: SKILLS MANAGER PANEL =====-->
+      <div class="tab-panel" id="panel-skills">
+        <div class="inbox-toolbar" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem;">Skills Inventory</h2>
+          <button class="btn" onclick="openSkillModal()">Add New Skill <i class='bx bx-plus-circle'></i></button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+          <!-- Frontend column card -->
+          <div class="glass" style="padding: 1.5rem;">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class='bx bx-code-alt'></i> Frontend Development
+            </h3>
+            <div class="editor-list" id="editor-skills-frontend">
+              <!-- Loaded dynamically via JS -->
+            </div>
+          </div>
+
+          <!-- Backend column card -->
+          <div class="glass" style="padding: 1.5rem;">
+            <h3 style="color: var(--secondary-color); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class='bx bx-server'></i> Backend & Tools
+            </h3>
+            <div class="editor-list" id="editor-skills-backend">
+              <!-- Loaded dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--===== VIEW 3: PROJECTS MANAGER PANEL =====-->
+      <div class="tab-panel" id="panel-projects">
+        <div class="inbox-toolbar" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem;">Projects Inventory</h2>
+          <div style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-secondary" onclick="openGitHubImportModal()">Import from GitHub <i class='bx bxl-github'></i></button>
+            <button class="btn" onclick="openProjectModal()">Add Custom Project <i class='bx bx-plus-circle'></i></button>
+          </div>
+        </div>
+
+        <div class="editor-list" id="editor-projects-list">
+          <!-- Loaded dynamically via JS -->
+        </div>
+      </div>
+
+      <!--===== VIEW 4: EDUCATION TIMELINE PANEL =====-->
+      <div class="tab-panel" id="panel-education">
+        <div class="inbox-toolbar" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem;">Education History</h2>
+          <button class="btn" onclick="openEducationModal()">Add Timeline Event <i class='bx bx-plus-circle'></i></button>
+        </div>
+
+        <div class="editor-list" id="editor-education-list">
+          <!-- Loaded dynamically via JS -->
+        </div>
+      </div>
+
+      <!--===== VIEW 5: EXPERIENCE TIMELINE PANEL =====-->
+      <div class="tab-panel" id="panel-experience">
+        <div class="inbox-toolbar" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem;">Professional Experiences</h2>
+          <button class="btn" onclick="openExperienceModal()">Add Experience Event <i class='bx bx-plus-circle'></i></button>
+        </div>
+
+        <div class="editor-list" id="editor-experience-list">
+          <!-- Loaded dynamically via JS -->
+        </div>
+      </div>
+
+      <!--===== VIEW 8: CERTIFICATES PANEL =====-->
+      <div class="tab-panel" id="panel-certificates">
+        <div class="inbox-toolbar" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.25rem;">Certificates Inventory</h2>
+          <button class="btn" onclick="openCertificateModal()">Add New Certificate <i class='bx bx-plus-circle'></i></button>
+        </div>
+
+        <div class="editor-list" id="editor-certificates-list">
+          <!-- Loaded dynamically via JS -->
+        </div>
+      </div>
+
+      <!--===== VIEW 6: MESSAGES INBOX PANEL =====-->
+      <div class="tab-panel" id="panel-messages">
+        <div class="inbox-container">
+          <div class="inbox-toolbar">
+            <div class="search-box">
+              <i class='bx bx-search'></i>
+              <input type="text" id="inbox-search" placeholder="Search sender name or message..." class="form-input">
+            </div>
+            
+            <button class="btn btn-secondary" id="inbox-clear-all" style="border-color: #ef4444; color: #ef4444;">
+              Delete All Messages <i class='bx bx-trash'></i>
+            </button>
+          </div>
+
+          <div class="inbox-grid" id="inbox-messages-list">
+            <!-- Loaded dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!--===== VIEW 7: GENERAL SETTINGS PANEL =====-->
+      <div class="tab-panel" id="panel-settings">
+        <div class="glass" style="padding: 2.5rem; max-width: 800px; margin: 0 auto;">
+          <form id="settings-form" autocomplete="off">
+            <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Hero Section Details</h3>
+            
+            <div class="form-group">
+              <input type="text" id="settings-name" required placeholder=" " class="form-input">
+              <label for="settings-name" class="form-label">Full Name</label>
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="settings-titles" required placeholder=" " class="form-input">
+              <label for="settings-titles" class="form-label">Dynamic Typing Titles (Comma separated)</label>
+            </div>
+
+            <div class="form-group">
+              <textarea id="settings-desc" required placeholder=" " class="form-input" style="height: 100px; resize: none;"></textarea>
+              <label for="settings-desc" class="form-label">Profile Description Summary</label>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 2rem;">About Section Details</h3>
+
+            <div class="form-group">
+              <input type="text" id="settings-about-title" required placeholder=" " class="form-input">
+              <label for="settings-about-title" class="form-label">About Heading Subtitle</label>
+            </div>
+
+            <div class="form-group">
+              <textarea id="settings-about-text" required placeholder=" " class="form-input" style="height: 120px; resize: none;"></textarea>
+              <label for="settings-about-text" class="form-label">About Detail Narrative Paragraph</label>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <input type="text" id="settings-about-edu" required placeholder=" " class="form-input">
+                <label for="settings-about-edu" class="form-label">Education Fact Label</label>
+              </div>
+              <div class="form-group">
+                <input type="text" id="settings-about-proj" required placeholder=" " class="form-input">
+                <label for="settings-about-proj" class="form-label">Projects Completed Count</label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 1.5rem; width: 100%; justify-content: center;">
+              Save Profile Configurations <i class='bx bx-save'></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR SKILLS FORM =====-->
+  <div class="editor-modal" id="skill-modal">
+    <div class="editor-modal-card glass">
+      <i class='bx bx-x editor-modal-close' onclick="closeSkillModal()"></i>
+      <h3 class="editor-modal-title" id="skill-modal-title">Add New Skill</h3>
+      
+      <form id="skill-form" autocomplete="off">
+        <input type="hidden" id="skill-index">
+        <input type="hidden" id="skill-category">
+
+        <div class="form-group">
+          <input type="text" id="skill-name" required placeholder=" " class="form-input">
+          <label for="skill-name" class="form-label">Skill Name</label>
+        </div>
+
+        <div class="form-group">
+          <input type="number" id="skill-percentage" required min="1" max="100" placeholder=" " class="form-input">
+          <label for="skill-percentage" class="form-label">Skill Efficiency Percentage (1-100)</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="skill-icon" required placeholder=" " class="form-input">
+          <label for="skill-icon" class="form-label">Boxicons Class (e.g. bxl-react, bxs-paint)</label>
+          <span style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem; display: block;">See all icons on Boxicons library (e.g., bxl-css3, bxl-nodejs).</span>
+        </div>
+
+        <div class="form-group" id="skill-category-group">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Skill Department</label>
+          <select id="skill-category-select" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+            <option value="frontend">Frontend Development</option>
+            <option value="backend">Backend & Tools</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Save Skill <i class='bx bx-check-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR PROJECTS FORM =====-->
+  <div class="editor-modal" id="project-modal">
+    <div class="editor-modal-card glass">
+      <i class='bx bx-x editor-modal-close' onclick="closeProjectModal()"></i>
+      <h3 class="editor-modal-title" id="project-modal-title">Project Details</h3>
+      
+      <form id="project-form" autocomplete="off">
+        <input type="hidden" id="project-index">
+
+        <div class="form-group">
+          <input type="text" id="proj-name" required placeholder=" " class="form-input">
+          <label for="proj-name" class="form-label">Project Title</label>
+        </div>
+
+        <div class="form-group">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Category</label>
+          <select id="proj-category" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+            <option value="Web App">Web App</option>
+            <option value="Mobile App">Mobile App</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="proj-lang" placeholder="Primary Language/Tech (e.g. JavaScript, PHP)" class="form-input">
+          <label for="proj-lang" class="form-label">Primary Programming Language</label>
+        </div>
+
+        <div class="form-group">
+          <textarea id="proj-desc" required placeholder=" " class="form-input" style="height: 100px; resize: none;"></textarea>
+          <label for="proj-desc" class="form-label">Short Description</label>
+        </div>
+
+        <div class="form-group">
+          <input type="url" id="proj-git" placeholder="https://github.com/username/repo" class="form-input">
+          <label for="proj-git" class="form-label">GitHub Repository URL</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="proj-live" placeholder="https://myproject.com (Optional)" class="form-input">
+          <label for="proj-live" class="form-label">Live Demo URL</label>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Project Photo Source</label>
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <input type="file" id="proj-image-file" accept="image/*" class="form-input" style="padding: 0.5rem; background: var(--bg-card); cursor: pointer;">
+            <input type="text" id="proj-image" placeholder="Or paste external image URL / path" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Project Video Source</label>
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <input type="file" id="proj-video-file" accept="video/*" class="form-input" style="padding: 0.5rem; background: var(--bg-card); cursor: pointer;">
+            <input type="text" id="proj-video" placeholder="Or paste YouTube link / local video path" class="form-input">
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Save Project <i class='bx bx-check-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR GITHUB IMPORT =====-->
+  <div class="editor-modal" id="github-import-modal">
+    <div class="editor-modal-card glass" style="max-width: 500px;">
+      <i class='bx bx-x editor-modal-close' onclick="closeGitHubImportModal()"></i>
+      <h3 class="editor-modal-title">Import from GitHub</h3>
+      
+      <div id="github-repos-loader" style="text-align: center; padding: 2rem 0; display: none;">
+        <i class='bx bx-loader-alt bx-spin' style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 0.5rem; display: block;"></i>
+        <span>Fetching public repositories...</span>
+      </div>
+
+      <div id="github-repos-error" style="color: #ef4444; font-size: 0.9rem; text-align: center; padding: 1rem; display: none;">
+         Failed to load repositories. Please check connection.
+      </div>
+
+      <div class="messages-list" id="github-repos-list" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+        <!-- Filled dynamically -->
+      </div>
+      
+      <div style="font-size: 0.8rem; color: var(--text-light); text-align: center;">
+         Only public repositories under your profile will be listed.
+      </div>
+    </div>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR EDUCATION TIMELINE =====-->
+  <div class="editor-modal" id="education-modal">
+    <div class="editor-modal-card glass">
+      <i class='bx bx-x editor-modal-close' onclick="closeEducationModal()"></i>
+      <h3 class="editor-modal-title" id="education-modal-title">Education Event</h3>
+      
+      <form id="education-form" autocomplete="off">
+        <input type="hidden" id="education-index">
+
+        <div class="form-group">
+          <input type="text" id="edu-date" required placeholder=" " class="form-input">
+          <label for="edu-date" class="form-label">Timeframe Date Range (e.g. 2023 - Present)</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="edu-title" required placeholder=" " class="form-input">
+          <label for="edu-title" class="form-label">Degree Title / Qualification</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="edu-subtitle" required placeholder=" " class="form-input">
+          <label for="edu-subtitle" class="form-label">Institute / School Name</label>
+        </div>
+
+        <div class="form-group">
+          <textarea id="edu-desc" required placeholder=" " class="form-input" style="height: 80px; resize: none;"></textarea>
+          <label for="edu-desc" class="form-label">Short Summary Description</label>
+        </div>
+
+        <div class="bullets-editor-wrapper">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Timeline Detail Bullet Points</label>
+          <div id="edu-bullets-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <!-- Inputs populated dynamically -->
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="addBulletField('edu-bullets-list')" style="padding: 0.5rem 1rem; font-size: 0.8rem; align-self: flex-start;">
+            Add Bullet Point <i class='bx bx-plus'></i>
+          </button>
+        </div>
+
+        <div class="tags-input-wrapper">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Tech Tags / Key Modules</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="edu-tag-input" placeholder="Add Tag and press Add" class="form-input" style="flex-grow: 1;">
+            <button type="button" class="btn" onclick="addTagField('edu-tag-input', 'edu-tags-container')" style="padding: 0.5rem 1rem;">Add</button>
+          </div>
+          <div class="tags-container" id="edu-tags-container">
+            <!-- Tag Badges -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="edu-icon" required placeholder=" " class="form-input">
+          <label for="edu-icon" class="form-label">Boxicons Marker Icon Name (e.g. bx-graduation, bx-book-open)</label>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Save Education Event <i class='bx bx-check-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR EXPERIENCE TIMELINE =====-->
+  <div class="editor-modal" id="experience-modal">
+    <div class="editor-modal-card glass">
+      <i class='bx bx-x editor-modal-close' onclick="closeExperienceModal()"></i>
+      <h3 class="editor-modal-title" id="experience-modal-title">Experience Event</h3>
+      
+      <form id="experience-form" autocomplete="off">
+        <input type="hidden" id="experience-index">
+
+        <div class="form-group">
+          <input type="text" id="exp-date" required placeholder=" " class="form-input">
+          <label for="exp-date" class="form-label">Employment Date Range (e.g. Jun 2024 - Aug 2024)</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="exp-title" required placeholder=" " class="form-input">
+          <label for="exp-title" class="form-label">Role Title / Designation</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="exp-type" required placeholder=" " class="form-input">
+          <label for="exp-type" class="form-label">Job Type Badge (e.g. Internship, Full-time, Freelance)</label>
+        </div>
+
+        <div class="form-group">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Job Type Color Theme</label>
+          <select id="exp-type-theme" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+            <option value="intern">Cyan (Internship)</option>
+            <option value="freelance">Purple (Freelance)</option>
+            <option value="parttime">Green (Part-time / Full-time)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="exp-company" required placeholder=" " class="form-input">
+          <label for="exp-company" class="form-label">Company Name & Location</label>
+        </div>
+
+        <div class="bullets-editor-wrapper">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Job Responsibilities Bullets</label>
+          <div id="exp-bullets-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <!-- Inputs populated dynamically -->
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="addBulletField('exp-bullets-list')" style="padding: 0.5rem 1rem; font-size: 0.8rem; align-self: flex-start;">
+            Add Bullet Point <i class='bx bx-plus'></i>
+          </button>
+        </div>
+
+        <div class="tags-input-wrapper">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Skills Utilized Tags</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="exp-tag-input" placeholder="Add Tag and press Add" class="form-input" style="flex-grow: 1;">
+            <button type="button" class="btn" onclick="addTagField('exp-tag-input', 'exp-tags-container')" style="padding: 0.5rem 1rem;">Add</button>
+          </div>
+          <div class="tags-container" id="exp-tags-container">
+            <!-- Tag Badges -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="exp-icon" required placeholder=" " class="form-input">
+          <label for="exp-icon" class="form-label">Boxicons Icon Name (e.g. bx-code-block, bx-briefcase)</label>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Save Experience Event <i class='bx bx-check-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== POPUP MODAL OVERLAY FOR CERTIFICATES =====-->
+  <div class="editor-modal" id="certificate-modal">
+    <div class="editor-modal-card glass">
+      <i class='bx bx-x editor-modal-close' onclick="closeCertificateModal()"></i>
+      <h3 class="editor-modal-title" id="certificate-modal-title">Certificate Details</h3>
+      
+      <form id="certificate-form" autocomplete="off">
+        <input type="hidden" id="certificate-index">
+
+        <div class="form-group">
+          <input type="text" id="cert-name" required placeholder=" " class="form-input">
+          <label for="cert-name" class="form-label">Certificate Title</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="cert-issuer" required placeholder=" " class="form-input">
+          <label for="cert-issuer" class="form-label">Issuer Organization</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="cert-date" required placeholder=" " class="form-input">
+          <label for="cert-date" class="form-label">Date Range / Year (e.g. 2024)</label>
+        </div>
+
+        <div class="form-group">
+          <input type="url" id="cert-url" placeholder="https://credential-verify-url.com" class="form-input">
+          <label for="cert-url" class="form-label">Credential Verification URL (Optional)</label>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Certificate Document Upload (Image or PDF)</label>
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <input type="file" id="cert-file" accept="image/*,application/pdf" class="form-input" style="padding: 0.5rem; background: var(--bg-card); cursor: pointer;">
+            <input type="text" id="cert-doc-path" placeholder="Or paste document path/URL" class="form-input">
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Save Certificate <i class='bx bx-check-circle'></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!--===== TOAST NOTIFICATION CONTAINER =====-->
+  <div class="toast-container" id="toast-container">
+    <!-- Populated via Javascript -->
+  </div>
+
+  <!--===== ADMIN JS CONTROL =====-->
+  <script src="admin.js"></script>
+</body>
+</html>
