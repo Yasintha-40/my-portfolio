@@ -22,15 +22,16 @@ The project combines a modern frontend portfolio with a Node.js backend admin pa
 ## Project Structure
 
 - `frontend/` contains the public portfolio website.
-- `backend/` contains the API server and admin panel.
-- `backend/admin/` contains the admin login and dashboard files.
-- `backend/data.json` stores portfolio content, projects, and messages.
+- `frontend/backend/` contains the API server and admin panel.
+- `frontend/backend/admin/` contains the admin login and dashboard files.
+- `frontend/backend/data.json` stores portfolio content, projects, and messages.
 
 ## Run Locally
 
 1. Install dependencies inside the backend folder:
 
 	```bash
+	cd frontend/backend
 	npm install
 	```
 
@@ -48,7 +49,7 @@ The project combines a modern frontend portfolio with a Node.js backend admin pa
 
 ## Notes
 
-- The backend serves the frontend statically from the project root.
+- The backend serves the frontend statically from the `frontend/` folder.
 - Uploaded files are stored in `frontend/assets/uploads/`.
-- If `.env` is not present, the server falls back to default admin credentials defined in `backend/server.js`.
+- If `.env` is not present, the server falls back to default admin credentials defined in `frontend/backend/server.js`.
 

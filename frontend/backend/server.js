@@ -160,7 +160,7 @@ const authenticateToken = (req, res, next) => {
 // Configure Multer Storage for local PC media uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '../frontend/assets/uploads/');
+        const uploadDir = path.join(__dirname, '../assets/uploads/');
         // Ensure destination folder exists
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
@@ -377,14 +377,18 @@ app.delete('/api/messages', authenticateToken, (req, res) => {
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // Host frontend statically at root /
-app.use('/', express.static(path.join(__dirname, '../frontend')));
+app.use('/', express.static(path.join(__dirname, '..')));
 
 // Fallback for route /admin (loads /admin/index.html)
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-});
+// Start Server locally; Vercel will invoke the exported app directly.
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server is running at http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
