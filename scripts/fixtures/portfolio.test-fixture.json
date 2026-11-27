@@ -1,0 +1,31 @@
+{
+  "profile": {
+    "name": "Test Portfolio",
+    "titles": ["Software Developer"],
+    "description": "Synthetic portfolio content for automated tests.",
+    "aboutTitle": "Building useful software",
+    "aboutText": "This fixture contains synthetic text only.",
+    "aboutEducation": "Test education",
+    "aboutProjects": "Test projects"
+  },
+  "skills": {
+    "frontend": [],
+    "backend": []
+  },
+  "education": [],
+  "experience": [],
+  "projects": [
+    {"name":"Fixture Project 1","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/1","homepage":"","image":"/assets/uploads/1781840643635-670015348.png","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 2","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/2","homepage":"","image":"/assets/uploads/1781841094524-446497287.jpg","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 3","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/3","homepage":"","image":"/assets/uploads/1781841381392-957259557.jpg","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 4","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/4","homepage":"","image":"/assets/uploads/1781841609931-342519142.jpg","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 5","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/5","homepage":"","image":"/assets/uploads/1781841829036-467093329.jpg","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 6","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/6","homepage":"","image":"/assets/uploads/1783915623183-632060214.png","video":"","stargazers_count":0,"forks_count":0},
+    {"name":"Fixture Project 7","category":"Web App","language":"JavaScript","description":"Synthetic test project.","html_url":"https://example.invalid/7","homepage":"","image":"/assets/uploads/1783915739067-714799018.png","video":"","stargazers_count":0,"forks_count":0}
+  ],
+  "certificates": [
+    {"name":"Fixture Certificate 1","issuer":"Example Issuer","date":"2025","credential_url":"","pdf":"","image":""},
+    {"name":"Fixture Certificate 2","issuer":"Example Issuer","date":"2025","credential_url":"","pdf":"","image":""}
+  ],
+  "messages": []
+}

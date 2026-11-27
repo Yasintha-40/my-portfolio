@@ -1,15 +1,25 @@
-/*===== BACKEND SERVER INTERACTION UTILITIES =====*/
+﻿/*===== BACKEND SERVER INTERACTION UTILITIES =====*/
 const API_BASE = "";
 let currentPortfolioData = {};
 let trafficChartInstance = null;
 
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
+function safeLink(value, allowedHost) {
+    try {
+        const url = new URL(value);
+        return url.protocol === 'https:' && (!allowedHost || url.hostname === allowedHost || url.hostname.endsWith(`.${allowedHost}`)) ? url.href : '#';
+    } catch { return typeof value === 'string' && /^\/assets\/(?!\/)[a-zA-Z0-9_./-]+$/.test(value) && !value.split('/').includes('..') ? value : '#'; }
+}
+
 // Header Token builder
 function getHeaders() {
-    const token = sessionStorage.getItem('admin_token') || '';
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
+    const headers = { 'Content-Type': 'application/json' };
+    const csrfToken = sessionStorage.getItem('admin_csrf');
+    if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+    return headers;
 }
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
@@ -27,7 +37,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
         if (response.status === 401 || response.status === 403) {
             // Token expired or invalid
             sessionStorage.removeItem('admin_auth');
-            sessionStorage.removeItem('admin_token');
+            sessionStorage.removeItem('admin_csrf');
             checkAuth();
             throw new Error("Session expired. Please log in again.");
         }
@@ -105,28 +115,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('certificate-form').addEventListener('submit', saveCertificateItem);
 });
 
-function checkAuth() {
-    const isAuthed = sessionStorage.getItem('admin_auth') === 'true';
+async function checkAuth() {
     const loginContainer = document.getElementById('login-container');
     const dashboardWrapper = document.getElementById('dashboard-wrapper');
-
-    if (isAuthed) {
-        if (loginContainer) loginContainer.style.display = 'none';
-        if (dashboardWrapper) {
-            dashboardWrapper.classList.add('active');
-            // Load DB data from express server
-            initializeData();
+    try {
+        const response = await fetch('/api/session', { credentials: 'same-origin' });
+        const session = response.ok ? await response.json() : null;
+        if (session?.authenticated) {
+            sessionStorage.setItem('admin_auth', 'true');
+            sessionStorage.setItem('admin_csrf', session.csrfToken);
+            if (loginContainer) loginContainer.style.display = 'none';
+            if (dashboardWrapper) {
+                dashboardWrapper.classList.add('active');
+                initializeData();
+            }
+            return;
         }
-    } else {
-        if (loginContainer) loginContainer.style.display = 'flex';
-        if (dashboardWrapper) dashboardWrapper.classList.remove('active');
-    }
+    } catch {}
+    sessionStorage.removeItem('admin_auth');
+    sessionStorage.removeItem('admin_csrf');
+    if (loginContainer) loginContainer.style.display = 'flex';
+    if (dashboardWrapper) dashboardWrapper.classList.remove('active');
 }
 
 async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value.trim();
+    const password = document.getElementById('login-password').value;
     const errorMsg = document.getElementById('login-error');
 
     try {
@@ -140,7 +155,7 @@ async function handleLogin(e) {
         
         if (res.ok && data.success) {
             sessionStorage.setItem('admin_auth', 'true');
-            sessionStorage.setItem('admin_token', data.token);
+            sessionStorage.setItem('admin_csrf', data.csrfToken);
             if (errorMsg) errorMsg.style.display = 'none';
             showToast('Login Successful', 'Welcome to your portfolio manager dashboard.', 'success');
             checkAuth();
@@ -153,13 +168,17 @@ async function handleLogin(e) {
     }
 }
 
-function handleLogout() {
-    sessionStorage.removeItem('admin_auth');
-    sessionStorage.removeItem('admin_token');
-    showToast('Logged Out', 'You have successfully logged out.', 'success');
-    setTimeout(() => {
-        location.reload();
-    }, 1000);
+async function handleLogout() {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST', headers: { 'X-CSRF-Token': sessionStorage.getItem('admin_csrf') || '' }, credentials: 'same-origin' });
+        if (!response.ok) throw new Error('Logout could not be confirmed. Please retry.');
+        sessionStorage.removeItem('admin_auth');
+        sessionStorage.removeItem('admin_csrf');
+        showToast('Logged Out', 'You have successfully logged out.', 'success');
+        setTimeout(() => location.reload(), 500);
+    } catch (error) {
+        showToast('Logout Failed', error.message, 'error');
+    }
 }
 
 /*===== THEME SWITCHING IN ADMIN PANEL =====*/
@@ -216,7 +235,7 @@ function initMobileNav() {
 /*===== TAB NAVIGATION =====*/
 const tabMeta = {
     dashboard: { title: "Dashboard Overview", subtitle: "Welcome back! Here's your portfolio health summary." },
-    skills: { title: "Skills Inventory", subtitle: "Define your engineering talents and adjust metrics bars." },
+    skills: { title: "Skills Inventory", subtitle: "Manage the skills listed publicly. GitHub calculates code-language percentages." },
     projects: { title: "Projects Inventory", subtitle: "Curate and edit projects displayed on your portfolio." },
     education: { title: "Education History", subtitle: "Manage timelines for school qualifications." },
     experience: { title: "Professional Experience", subtitle: "Update corporate internships, roles, and tags." },
@@ -385,13 +404,11 @@ async function loadDashboardStats() {
                     switchTab('messages');
                     highlightMessage(msg.id);
                 };
-                div.innerHTML = `
-                    <div class="msg-header">
-                        <span class="msg-sender">${msg.name}</span>
-                        <span class="msg-time">${msg.date.split(',')[0]}</span>
-                    </div>
-                    <div class="msg-snippet">${msg.message}</div>
-                `;
+                const header = document.createElement('div'); header.className = 'msg-header';
+                const sender = document.createElement('span'); sender.className = 'msg-sender'; sender.textContent = msg.name;
+                const time = document.createElement('span'); time.className = 'msg-time'; time.textContent = String(msg.date || '').split(',')[0];
+                const snippet = document.createElement('div'); snippet.className = 'msg-snippet'; snippet.textContent = msg.message;
+                header.append(sender, time); div.append(header, snippet);
                 recentList.appendChild(div);
             });
         }
@@ -424,25 +441,25 @@ async function loadInboxMessages() {
         messages.forEach(msg => {
             const div = document.createElement('div');
             div.className = `inbox-card glass ${msg.read ? '' : 'unread'}`;
-            div.id = `msg-card-${msg.id}`;
-            div.innerHTML = `
-                <div class="inbox-meta">
-                    <div class="inbox-sender-info">
-                        <span class="inbox-name">${msg.name}</span>
-                        <span class="inbox-email"><i class='bx bx-envelope'></i> ${msg.email}</span>
-                    </div>
-                    <span class="inbox-date">${msg.date}</span>
-                </div>
-                <div class="inbox-body">${msg.message}</div>
-                <div class="inbox-actions">
-                    <button class="btn btn-secondary inbox-btn" onclick="toggleReadStatus(${msg.id})">
-                        <i class='bx ${msg.read ? 'bx-envelope' : 'bx-envelope-open'}'></i> Mark as ${msg.read ? 'Unread' : 'Read'}
-                    </button>
-                    <button class="btn btn-secondary inbox-btn" onclick="deleteMessage(${msg.id})" style="border-color: #ef4444; color: #ef4444;">
-                        <i class='bx bx-trash'></i> Delete
-                    </button>
-                </div>
-            `;
+            div.id = `msg-card-${String(msg.id).replace(/[^a-zA-Z0-9_-]/g, '')}`;
+            const meta = document.createElement('div'); meta.className = 'inbox-meta';
+            const senderInfo = document.createElement('div'); senderInfo.className = 'inbox-sender-info';
+            const sender = document.createElement('span'); sender.className = 'inbox-name'; sender.textContent = msg.name;
+            const email = document.createElement('span'); email.className = 'inbox-email'; email.textContent = msg.email;
+            const date = document.createElement('span'); date.className = 'inbox-date'; date.textContent = msg.date;
+            senderInfo.append(sender, email); meta.append(senderInfo, date);
+            const body = document.createElement('div'); body.className = 'inbox-body'; body.textContent = msg.message;
+            const actions = document.createElement('div'); actions.className = 'inbox-actions';
+            const readButton = document.createElement('button'); readButton.className = 'btn btn-secondary inbox-btn';
+                const readIcon = document.createElement('i'); readIcon.className = `bx ${msg.read ? 'bx-envelope-open' : 'bx-check'}`;
+            readButton.textContent = `Mark as ${msg.read ? 'Unread' : 'Read'}`;
+            readButton.prepend(readIcon, document.createTextNode(' '));
+            readButton.addEventListener('click', () => toggleReadStatus(msg.id));
+            const deleteButton = document.createElement('button'); deleteButton.className = 'btn btn-secondary inbox-btn';
+            const deleteIcon = document.createElement('i'); deleteIcon.className = 'bx bx-trash';
+            deleteButton.textContent = 'Delete'; deleteButton.prepend(deleteIcon, document.createTextNode(' ')); deleteButton.style.borderColor = '#ef4444'; deleteButton.style.color = '#ef4444';
+            deleteButton.addEventListener('click', () => deleteMessage(msg.id));
+            actions.append(readButton, deleteButton); div.append(meta, body, actions);
             listContainer.appendChild(div);
         });
     } catch(err) {
@@ -542,10 +559,10 @@ function createSkillRowHTML(skill, index, cat) {
     div.className = 'editor-card glass';
     div.innerHTML = `
         <div class="editor-info">
-            <div class="editor-icon"><i class='bx ${skill.icon}'></i></div>
+            <div class="editor-icon"><i class='bx ${escapeHTML(skill.icon)}'></i></div>
             <div>
-                <h4 class="editor-title">${skill.name}</h4>
-                <div class="editor-subtitle">Proficiency: ${skill.percentage}%</div>
+                <h4 class="editor-title">${escapeHTML(skill.name)}</h4>
+                <div class="editor-subtitle">Legacy rating (not shown publicly): ${skill.percentage}%</div>
             </div>
         </div>
         <div class="editor-actions">
@@ -654,10 +671,10 @@ function loadProjectsList() {
         // Build media indicators
         let mediaBadges = '';
         if (proj.image) {
-            mediaBadges += `<span class="exp-timeline__type exp-timeline__type--intern" style="margin-left: 0.5rem; background: rgba(6, 182, 212, 0.1); color: rgb(6, 182, 212); border: 1px solid rgba(6, 182, 212, 0.2);">📷 Photo</span>`;
+            mediaBadges += `<span class="exp-timeline__type exp-timeline__type--intern" style="margin-left: 0.5rem; background: rgba(6, 182, 212, 0.1); color: rgb(6, 182, 212); border: 1px solid rgba(6, 182, 212, 0.2);">ðŸ“· Photo</span>`;
         }
         if (proj.video) {
-            mediaBadges += `<span class="exp-timeline__type exp-timeline__type--freelance" style="margin-left: 0.5rem; background: rgba(168, 85, 247, 0.1); color: rgb(168, 85, 247); border: 1px solid rgba(168, 85, 247, 0.2);">🎥 Video</span>`;
+            mediaBadges += `<span class="exp-timeline__type exp-timeline__type--freelance" style="margin-left: 0.5rem; background: rgba(168, 85, 247, 0.1); color: rgb(168, 85, 247); border: 1px solid rgba(168, 85, 247, 0.2);">ðŸŽ¥ Video</span>`;
         }
 
         div.innerHTML = `
@@ -665,11 +682,11 @@ function loadProjectsList() {
                 <div class="editor-icon"><i class='bx bx-folder'></i></div>
                 <div>
                     <h4 class="editor-title">
-                        ${proj.name} 
-                        <span class="exp-timeline__type exp-timeline__type--parttime">${proj.category}</span>
+                        ${escapeHTML(proj.name)}
+                        <span class="exp-timeline__type exp-timeline__type--parttime">${escapeHTML(proj.category)}</span>
                         ${mediaBadges}
                     </h4>
-                    <div class="editor-subtitle">${proj.language || 'Codebase'} | <a href="${proj.html_url}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Github <i class='bx bx-link-external' style="font-size: 0.8rem;"></i></a></div>
+                    <div class="editor-subtitle">${escapeHTML(proj.language || 'Codebase')} | <a href="${escapeHTML(safeLink(proj.html_url, 'github.com'))}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); text-decoration: underline;">Github <i class='bx bx-link-external' style="font-size: 0.8rem;"></i></a></div>
                 </div>
             </div>
             <div class="editor-actions">
@@ -732,7 +749,6 @@ async function uploadFiles() {
     const vidInput = document.getElementById('proj-video-file');
     const certFileInput = document.getElementById('cert-file');
     
-    const token = sessionStorage.getItem('admin_token') || '';
     const formData = new FormData();
     let hasFiles = false;
     
@@ -759,7 +775,7 @@ async function uploadFiles() {
     const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'X-CSRF-Token': sessionStorage.getItem('admin_csrf') || ''
             // Note: Don't set Content-Type header; browser must specify multipart boundary
         },
         body: formData
@@ -767,7 +783,7 @@ async function uploadFiles() {
     
     if (response.status === 401 || response.status === 403) {
         sessionStorage.removeItem('admin_auth');
-        sessionStorage.removeItem('admin_token');
+        sessionStorage.removeItem('admin_csrf');
         checkAuth();
         throw new Error("Session expired. Please log in again.");
     }
@@ -901,9 +917,9 @@ async function openGitHubImportModal() {
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="text-align: left; max-width: 75%;">
-                        <strong style="font-size: 0.95rem; color: #fff; text-transform: capitalize;">${repo.name.replace(/[-_]/g, ' ')}</strong>
+                        <strong style="font-size: 0.95rem; color: #fff; text-transform: capitalize;">${escapeHTML(repo.name.replace(/[-_]/g, ' '))}</strong>
                         <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${repo.description || 'No description listed.'}
+                            ${escapeHTML(repo.description || 'No description listed.')}
                         </div>
                     </div>
                     <button class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 0.25rem;">
@@ -952,10 +968,10 @@ function loadEducationList() {
         div.className = 'editor-card glass';
         div.innerHTML = `
             <div class="editor-info">
-                <div class="editor-icon"><i class='bx ${item.icon}'></i></div>
+                <div class="editor-icon"><i class='bx ${escapeHTML(item.icon)}'></i></div>
                 <div>
-                    <h4 class="editor-title">${item.title}</h4>
-                    <div class="editor-subtitle">${item.subtitle} | ${item.date}</div>
+                    <h4 class="editor-title">${escapeHTML(item.title)}</h4>
+                    <div class="editor-subtitle">${escapeHTML(item.subtitle)} | ${escapeHTML(item.date)}</div>
                 </div>
             </div>
             <div class="editor-actions">
@@ -1069,10 +1085,10 @@ function loadExperienceList() {
         div.className = 'editor-card glass';
         div.innerHTML = `
             <div class="editor-info">
-                <div class="editor-icon"><i class='bx ${item.icon}'></i></div>
+                <div class="editor-icon"><i class='bx ${escapeHTML(item.icon)}'></i></div>
                 <div>
-                    <h4 class="editor-title">${item.title} <span class="exp-timeline__type ${item.typeClass}">${item.type}</span></h4>
-                    <div class="editor-subtitle">${item.company} | ${item.date}</div>
+                    <h4 class="editor-title">${escapeHTML(item.title)} <span class="exp-timeline__type ${escapeHTML(item.typeClass)}">${escapeHTML(item.type)}</span></h4>
+                    <div class="editor-subtitle">${escapeHTML(item.company)} | ${escapeHTML(item.date)}</div>
                 </div>
             </div>
             <div class="editor-actions">
@@ -1219,7 +1235,7 @@ function loadCertificatesList() {
         
         let fileBadge = '';
         if (cert.pdf || cert.image) {
-            fileBadge = `<span class="exp-timeline__type exp-timeline__type--intern" style="margin-left: 0.5rem; background: rgba(6, 182, 212, 0.1); color: rgb(6, 182, 212); border: 1px solid rgba(6, 182, 212, 0.2);">📄 Doc</span>`;
+            fileBadge = `<span class="exp-timeline__type exp-timeline__type--intern" style="margin-left: 0.5rem; background: rgba(6, 182, 212, 0.1); color: rgb(6, 182, 212); border: 1px solid rgba(6, 182, 212, 0.2);">ðŸ“„ Doc</span>`;
         }
 
         div.innerHTML = `
@@ -1227,10 +1243,10 @@ function loadCertificatesList() {
                 <div class="editor-icon"><i class='bx bx-award'></i></div>
                 <div>
                     <h4 class="editor-title">
-                        ${cert.name} 
+                        ${escapeHTML(cert.name)}
                         ${fileBadge}
                     </h4>
-                    <div class="editor-subtitle">${cert.issuer} | Issued: ${cert.date}</div>
+                    <div class="editor-subtitle">${escapeHTML(cert.issuer)} | Issued: ${escapeHTML(cert.date)}</div>
                 </div>
             </div>
             <div class="editor-actions">
@@ -1361,7 +1377,7 @@ function addBulletField(containerId, text = '') {
     const div = document.createElement('div');
     div.className = 'bullet-input-row';
     div.innerHTML = `
-        <input type="text" value="${text.replace(/"/g, '&quot;')}" placeholder="Enter detail bullet point text..." class="form-input" style="flex-grow: 1;">
+        <input type="text" value="${escapeHTML(text)}" placeholder="Enter detail bullet point text..." class="form-input" style="flex-grow: 1;">
         <button type="button" class="action-btn action-btn--delete" onclick="this.parentElement.remove()"><i class='bx bx-minus'></i></button>
     `;
     container.appendChild(div);
@@ -1394,7 +1410,7 @@ function renderTags(containerId, tagsArray) {
         const span = document.createElement('span');
         span.className = 'editor-tag';
         span.innerHTML = `
-            ${tag} <i class='bx bx-x' onclick="removeTagAt('${containerId}', ${idx})"></i>
+            ${escapeHTML(tag)} <i class='bx bx-x' onclick="removeTagAt('${escapeHTML(containerId)}', ${idx})"></i>
         `;
         container.appendChild(span);
     });
@@ -1458,8 +1474,8 @@ function showToast(title, message, type = 'success') {
     toast.innerHTML = `
         <div class="toast__icon"><i class='bx ${iconClass}'></i></div>
         <div class="toast__content">
-            <h4 class="toast__title">${title}</h4>
-            <p class="toast__message">${message}</p>
+            <h4 class="toast__title">${escapeHTML(title)}</h4>
+            <p class="toast__message">${escapeHTML(message)}</p>
         </div>
         <i class='bx bx-x toast__close'></i>
     `;

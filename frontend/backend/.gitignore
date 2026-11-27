@@ -1,3 +1,6 @@
 .env
-.env.example
+.env.*
+!.env.example
 node_modules/
+.local-security-state.json
+data.json

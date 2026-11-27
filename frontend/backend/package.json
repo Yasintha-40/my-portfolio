@@ -4,11 +4,20 @@
   "description": "Backend API server for Yasintha Portfolio Website",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --env-file-if-exists=.env dev.js",
+    "vercel-build": "node generate-template.js",
+    "prestart": "node generate-template.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "multer": "^2.2.0"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "qs": "6.16.2"
   }
 }

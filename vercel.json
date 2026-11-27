@@ -1,0 +1,72 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/backend/api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "frontend/**/index.html",
+        "excludeFiles": [
+          "frontend/backend/.env*",
+          "frontend/backend/data.json",
+          "frontend/backend/.local-security-state.json",
+          "frontend/assets/**"
+        ]
+      }
+    },
+    {
+      "src": "frontend/google445b1cc64cd53216.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/assets/**/*.{css,js,jpg,jpeg,png,webp,mp4,webm,svg,ico,woff,woff2}",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/backend/admin/*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/backend/admin/*.js",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/google445b1cc64cd53216\\.html",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "dest": "/frontend/google445b1cc64cd53216.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "dest": "/frontend/assets/$1"
+    },
+    {
+      "src": "/admin/(.*\\.(?:css|js))",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "dest": "/frontend/backend/admin/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/backend/api/index.js"
+    }
+  ]
+}

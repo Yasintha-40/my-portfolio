@@ -67,17 +67,19 @@ const defaultEducation = [
 
 const defaultExperience = [
     {
-        date: 'Jun 2024 – Aug 2024',
-        title: 'Software Engineering Intern',
+        date: 'May 2026 – Present',
+        title: 'Software Development Intern',
         type: 'Internship',
         typeClass: 'exp-timeline__type--intern',
-        company: 'Sri Lanka Tourism Development Authority (SLTDA) · Colombo, Sri Lanka',
+        company: 'Sri Lanka Tourism Development Authority (SLTDA)',
         bullets: [
-            'Collaborated in the IT department to design, maintain, and enhance the official web portals and travel information management systems.',
-            'Worked with PHP, Laravel, and OpenCart platforms to implement dynamic tourist information features and administrative systems.',
-            'Optimised SQL queries and database indexes to improve web portal performance under heavy tourist search traffic.'
+            'Developed a Pension Scheme Management System to streamline pension-related administrative processes and data management.',
+            'Developed Tourist Guide ID Printing and Inspection Officer ID Printing Systems to simplify information management, ID card generation, and printing.',
+            'Contributed to the redesign and development of the new Sri Lanka Travel official website (srilanka.travel), focusing on responsive design, UI/UX improvements, functionality, and SEO optimization.',
+            'Maintained and enhanced the existing Sri Lanka Travel official website through content updates, bug fixes, troubleshooting, and functionality improvements.',
+            'Performed full-stack development, database management, system integration, software testing, debugging, and collaborative development using version control.'
         ],
-        tags: ['PHP', 'Laravel', 'OpenCart', 'MySQL', 'Git'],
+        tags: ['React.js', 'JavaScript', 'HTML', 'CSS', 'PHP', 'MySQL', 'Git', 'GitHub', 'Figma', 'Adobe Photoshop', 'XAMPP', 'VS Code'],
         icon: 'bx-code-block',
         themeColor: 'var(--secondary-color)',
         themeColorRGB: '6, 182, 212'
@@ -106,13 +108,23 @@ const navMenu = document.getElementById('nav-menu'),
 if(navToggle && navMenu){
     navToggle.addEventListener('click', () => {
         navMenu.classList.toggle('show-menu')
+        navToggle.setAttribute('aria-expanded', String(navMenu.classList.contains('show-menu')))
     })
 }
 
 
 function linkAction(){
     navMenu.classList.remove('show-menu')
+    if (navToggle) navToggle.setAttribute('aria-expanded', 'false')
 }
+document.querySelectorAll('[role="button"][tabindex="0"]').forEach(control => {
+    control.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            control.click()
+        }
+    })
+})
 navLinks.forEach(n => n.addEventListener('click', linkAction))
 
 
@@ -219,12 +231,20 @@ function typeEffect() {
 }
 
 /*===== DYNAMIC RENDERING LOADERS =====*/
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const safePublicURL = value => {
+    const candidate = String(value || '');
+    if (['/assets/uploads/1783915516862-830469790.pdf', '/assets/uploads/1795680342064-697995500.pdf', '/assets/pdf/Yasintha_Randika_CV.pdf'].includes(candidate)) return '';
+    if (/^\/assets\/(?!\/)[a-zA-Z0-9_./-]+$/.test(candidate) && !candidate.split('/').includes('..')) return candidate;
+    try { const url = new URL(candidate); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
+};
+const safeEducationBullet = value => escapeHTML(value).replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>');
 function renderProfile() {
     const profile = portfolioData.profile || defaultProfile;
     
     const heroTitle = document.querySelector('.home__title');
     if (heroTitle) {
-        heroTitle.innerHTML = `Hi, I'm <span class="home__title-color">${profile.name}</span>`;
+        heroTitle.innerHTML = `Hi, I'm <span class="home__title-color">${escapeHTML(profile.name)}</span>`;
     }
     
     const heroDesc = document.querySelector('.home__description');
@@ -257,54 +277,71 @@ function renderSkills() {
     const skills = portfolioData.skills || defaultSkills;
     const skillsContainer = document.getElementById('skills-container');
     if (!skillsContainer) return;
-    
-    let frontendHTML = '';
-    skills.frontend.forEach(skill => {
-        frontendHTML += `
-            <div class="skills__data">
-              <div class="skills__names">
-                <span class="skills__name-item"><i class='bx ${skill.icon} skills__icon'></i> ${skill.name}</span>
-                <span class="skills__percentage">${skill.percentage}%</span>
-              </div>
-              <div class="skills__bar-bg">
-                <span class="skills__bar" data-width="${skill.percentage}%"></span>
-              </div>
-            </div>
-        `;
-    });
-
-    let backendHTML = '';
-    skills.backend.forEach(skill => {
-        backendHTML += `
-            <div class="skills__data">
-              <div class="skills__names">
-                <span class="skills__name-item"><i class='bx ${skill.icon} skills__icon'></i> ${skill.name}</span>
-                <span class="skills__percentage">${skill.percentage}%</span>
-              </div>
-              <div class="skills__bar-bg">
-                <span class="skills__bar" data-width="${skill.percentage}%"></span>
-              </div>
-            </div>
-        `;
-    });
-
-    skillsContainer.innerHTML = `
-        <!-- Frontend Development Column -->
-        <div class="skills__category glass">
-          <h3 class="skills__category-title"><i class='bx bx-code-alt'></i> Frontend Development</h3>
-          <div class="skills__list">
-            ${frontendHTML}
+    const escapeSkillText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    const configuredSkills = [...(skills.frontend || []), ...(skills.backend || [])];
+    const toolsHTML = configuredSkills.map(skill => `
+        <div class="skills__data">
+          <div class="skills__names">
+            <span class="skills__name-item"><i class="bx ${escapeSkillText(skill.icon)} skills__icon"></i> ${escapeSkillText(skill.name)}</span>
           </div>
         </div>
-
-        <!-- Backend Development & Tools Column -->
+    `).join('');
+    skillsContainer.innerHTML = `
         <div class="skills__category glass">
-          <h3 class="skills__category-title"><i class='bx bx-server'></i> Backend & Tools</h3>
-          <div class="skills__list">
-            ${backendHTML}
-          </div>
+          <h3 class="skills__category-title"><i class="bx bx-code-alt"></i> GitHub Code Languages</h3>
+          <p class="skills__source" id="github-language-source">Loading verified GitHub language usage…</p>
+          <div class="skills__list" id="github-language-list"></div>
+        </div>
+        <div class="skills__category glass">
+          <h3 class="skills__category-title"><i class="bx bx-server"></i> Skills & Technologies</h3>
+          <div class="skills__list">${toolsHTML}</div>
         </div>
     `;
+}
+
+function renderGitHubLanguageStats(stats) {
+    const list = document.getElementById('github-language-list');
+    const source = document.getElementById('github-language-source');
+    if (!list || !source) return;
+    list.replaceChildren();
+    stats.languages.forEach(language => {
+        const item = document.createElement('div');
+        item.className = 'skills__data';
+        const names = document.createElement('div');
+        names.className = 'skills__names';
+        const name = document.createElement('span');
+        name.className = 'skills__name-item';
+        name.textContent = language.name;
+        const percentage = document.createElement('span');
+        percentage.className = 'skills__percentage';
+        percentage.textContent = language.percentage === 0 ? '<0.1%' : `${language.percentage.toFixed(1)}%`;
+        names.append(name, percentage);
+        const barBackground = document.createElement('div');
+        barBackground.className = 'skills__bar-bg';
+        const bar = document.createElement('span');
+        bar.className = 'skills__bar';
+        bar.dataset.width = `${Math.max(language.percentage, 0.1)}%`;
+        bar.setAttribute('role', 'progressbar');
+        bar.setAttribute('aria-label', `${language.name} share of public GitHub code`);
+        bar.setAttribute('aria-valuemin', '0');
+        bar.setAttribute('aria-valuemax', '100');
+        bar.setAttribute('aria-valuenow', String(language.percentage));
+        barBackground.appendChild(bar);
+        item.append(names, barBackground);
+        list.appendChild(item);
+    });
+    const date = new Date(stats.updatedAt).toLocaleDateString();
+    source.textContent = `${stats.stale ? 'Older cached' : 'Cached'} GitHub snapshot: ${stats.repositoryCount} public, non-fork repositories · ${stats.totalBytes.toLocaleString()} code bytes · ${date}. Percentages are rounded.`;
+    initSkillProgress();
+}
+
+function renderGitHubLanguageError(error) {
+    console.warn('GitHub language usage unavailable:', error);
+    const source = document.getElementById('github-language-source');
+    if (!source) return;
+    source.textContent = error.message.includes('Too many repositories')
+        ? 'A complete breakdown needs more GitHub API requests than the public limit allows. No partial percentages are shown.'
+        : 'GitHub language usage is temporarily unavailable. No estimated percentages are shown.';
 }
 
 function renderEducation() {
@@ -317,27 +354,27 @@ function renderEducation() {
         let bulletsHTML = '';
         if (item.bullets && item.bullets.length > 0) {
             item.bullets.forEach(bullet => {
-                bulletsHTML += `<li>${bullet}</li>`;
+                bulletsHTML += `<li>${safeEducationBullet(bullet)}</li>`;
             });
         }
         
         let tagsHTML = '';
         if (item.tags && item.tags.length > 0) {
             item.tags.forEach(tag => {
-                tagsHTML += `<span class="edu-tag">${tag}</span>`;
+                tagsHTML += `<span class="edu-tag">${escapeHTML(tag)}</span>`;
             });
         }
 
         html += `
           <div class="timeline__item glass">
             <div class="timeline__marker">
-              <i class='bx ${item.icon} timeline__icon'></i>
+              <i class='bx ${escapeHTML(item.icon)} timeline__icon'></i>
             </div>
             <div class="timeline__content">
-              <span class="timeline__date">${item.date}</span>
-              <h3 class="timeline__title">${item.title}</h3>
-              <h4 class="timeline__subtitle">${item.subtitle}</h4>
-              <p class="timeline__desc">${item.desc}</p>
+              <span class="timeline__date">${escapeHTML(item.date)}</span>
+              <h3 class="timeline__title">${escapeHTML(item.title)}</h3>
+              <h4 class="timeline__subtitle">${escapeHTML(item.subtitle)}</h4>
+              <p class="timeline__desc">${escapeHTML(item.desc)}</p>
               
               <ul class="education__bullets">
                 ${bulletsHTML}
@@ -364,28 +401,28 @@ function renderExperience() {
         let bulletsHTML = '';
         if (item.bullets && item.bullets.length > 0) {
             item.bullets.forEach(bullet => {
-                bulletsHTML += `<li>${bullet}</li>`;
+                bulletsHTML += `<li>${escapeHTML(bullet)}</li>`;
             });
         }
         
         let tagsHTML = '';
         if (item.tags && item.tags.length > 0) {
             item.tags.forEach(tag => {
-                tagsHTML += `<span class="exp-tag">${tag}</span>`;
+                tagsHTML += `<span class="exp-tag">${escapeHTML(tag)}</span>`;
             });
         }
 
         html += `
-          <div class="exp-timeline__item glass" style="border-top-color: ${item.themeColor}; --item-color: ${item.themeColor}; --item-color-rgb: ${item.themeColorRGB};">
-            <div class="exp-timeline__marker" style="background: ${item.themeColor}; box-shadow: 0 0 15px rgba(${item.themeColorRGB}, 0.45);">
-              <i class='bx ${item.icon} exp-timeline__icon'></i>
+          <div class="exp-timeline__item glass" style="border-top-color: ${escapeHTML(item.themeColor)}; --item-color: ${escapeHTML(item.themeColor)}; --item-color-rgb: ${escapeHTML(item.themeColorRGB)};">
+            <div class="exp-timeline__marker" style="background: ${escapeHTML(item.themeColor)}; box-shadow: 0 0 15px rgba(${escapeHTML(item.themeColorRGB)}, 0.45);">
+              <i class='bx ${escapeHTML(item.icon)} exp-timeline__icon'></i>
             </div>
             <div class="exp-timeline__content">
               <div class="exp-timeline__header">
                 <div>
-                  <span class="exp-timeline__date" style="color: ${item.themeColor}; background: rgba(${item.themeColorRGB}, 0.08); border-color: rgba(${item.themeColorRGB}, 0.18);"><i class='bx bx-calendar'></i> ${item.date}</span>
-                  <h3 class="exp-timeline__title">${item.title} <span class="exp-timeline__type ${item.typeClass}">${item.type}</span></h3>
-                  <h4 class="exp-timeline__company"><i class='bx bx-buildings'></i> ${item.company}</h4>
+                  <span class="exp-timeline__date" style="color: ${escapeHTML(item.themeColor)}; background: rgba(${escapeHTML(item.themeColorRGB)}, 0.08); border-color: rgba(${escapeHTML(item.themeColorRGB)}, 0.18);"><i class='bx bx-calendar'></i> ${escapeHTML(item.date)}</span>
+                  <h3 class="exp-timeline__title">${escapeHTML(item.title)} <span class="exp-timeline__type ${escapeHTML(item.typeClass)}">${escapeHTML(item.type)}</span></h3>
+                  <h4 class="exp-timeline__company"><i class='bx bx-buildings'></i> ${escapeHTML(item.company)}</h4>
                 </div>
               </div>
               <ul class="exp-timeline__bullets">
@@ -411,13 +448,14 @@ function renderCertificates() {
     certificates.forEach(cert => {
         let linksHTML = '';
         if (cert.credential_url) {
-            linksHTML += `<a href="${cert.credential_url}" target="_blank" class="certificates__btn certificates__btn-primary">View Credential <i class='bx bx-link-external'></i></a>`;
+            const url = safePublicURL(cert.credential_url);
+            if (url) linksHTML += `<a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" class="certificates__btn certificates__btn-primary">View Credential <i class='bx bx-link-external'></i></a>`;
         }
         
         // Show local document (PDF or image) if uploaded
-        let docPath = cert.pdf || cert.image || '';
+        let docPath = safePublicURL(cert.pdf) || safePublicURL(cert.image);
         if (docPath) {
-            linksHTML += `<a href="${docPath}" target="_blank" class="certificates__btn certificates__btn-secondary">View Certificate <i class='bx bx-award'></i></a>`;
+            linksHTML += `<a href="${escapeHTML(docPath)}" target="_blank" rel="noopener noreferrer" class="certificates__btn certificates__btn-secondary">View Certificate <i class='bx bx-award'></i></a>`;
         }
 
         html += `
@@ -425,9 +463,9 @@ function renderCertificates() {
             <div class="certificates__icon-wrapper">
               <i class='bx bx-award'></i>
             </div>
-            <h3 class="certificates__title">${cert.name}</h3>
-            <span class="certificates__issuer"><i class='bx bx-buildings'></i> ${cert.issuer}</span>
-            <span class="certificates__date"><i class='bx bx-calendar'></i> Issued: ${cert.date}</span>
+            <h3 class="certificates__title">${escapeHTML(cert.name)}</h3>
+            <span class="certificates__issuer"><i class='bx bx-buildings'></i> ${escapeHTML(cert.issuer)}</span>
+            <span class="certificates__date"><i class='bx bx-calendar'></i> Issued: ${escapeHTML(cert.date)}</span>
             
             <div class="certificates__links">
               ${linksHTML}
@@ -461,6 +499,7 @@ function initSkillProgress() {
 
 /*===== SERVER API PERSISTENCE INTEGRATION =====*/
 let portfolioData = {};
+const hasServerRenderedContent = document.body.dataset.portfolioRendered === 'true';
 
 async function loadPortfolioData() {
     try {
@@ -481,22 +520,27 @@ async function loadPortfolioData() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Fetch state from server
-    await loadPortfolioData();
+    // The server already renders the current public data into the page.
+    // Keep the API/local-storage path for static and offline fallbacks only.
+    if (!hasServerRenderedContent) {
+        await loadPortfolioData();
 
-    // Set typed words dynamically from backend profile data
-    if (portfolioData.profile && portfolioData.profile.titles) {
-        words = portfolioData.profile.titles;
+        if (portfolioData.profile && portfolioData.profile.titles) {
+            words = portfolioData.profile.titles;
+        }
+
+        renderProfile();
+        renderSkills();
+        renderEducation();
+        renderExperience();
+        renderCertificates();
+    } else {
+        try {
+            const serverTitles = JSON.parse(document.body.dataset.portfolioTitles || '[]');
+            if (Array.isArray(serverTitles) && serverTitles.length) words = serverTitles;
+        } catch {}
     }
 
-    // Dynamic Render
-    renderProfile()
-    renderSkills()
-    renderEducation()
-    renderExperience()
-    renderCertificates()
-    
-    initSkillProgress()
     setTimeout(typeEffect, 500)
 })
 
@@ -519,30 +563,33 @@ const portfolioModal = document.getElementById('portfolio-modal'),
 // Helper function to extract and build embed URLs for YouTube and Vimeo
 function getEmbedUrl(url) {
     if (!url) return '';
-    
-    // YouTube
-    let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    let match = url.match(regExp);
-    
-    if (match && match[2].length === 11) {
-        return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
-    }
-    
-    // Vimeo
-    let vimeoReg = /vimeo\.com\/(?:video\/)?([0-9]+)/;
-    let vimeoMatch = url.match(vimeoReg);
-    if (vimeoMatch) {
-        return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
-    }
-    
-    return url;
+    try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:') return '';
+        const youtubeHosts = ['youtube.com', 'www.youtube.com', 'youtu.be', 'm.youtube.com'];
+        if (youtubeHosts.includes(parsed.hostname)) {
+            const id = parsed.hostname === 'youtu.be' ? parsed.pathname.slice(1) : parsed.searchParams.get('v') || parsed.pathname.match(/\/(?:embed|shorts|v)\/([^/]+)/)?.[1];
+            return id && /^[a-zA-Z0-9_-]{11}$/.test(id) ? `https://www.youtube.com/embed/${id}?autoplay=1` : '';
+        }
+        if (parsed.hostname === 'vimeo.com' || parsed.hostname === 'www.vimeo.com' || parsed.hostname === 'player.vimeo.com') {
+            const id = parsed.pathname.match(/\/(?:video\/)?(\d+)/)?.[1];
+            return id ? `https://player.vimeo.com/video/${id}?autoplay=1` : '';
+        }
+    } catch {}
+    return '';
 }
 
 // Event delegation for dynamic project cards
+document.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.work__card')) {
+        event.preventDefault();
+        event.target.click();
+    }
+});
 document.addEventListener('click', (e) => {
     const card = e.target.closest('.work__card')
     if (card && portfolioModal) {
-        const title = card.getAttribute('data-title'),
+        const title = card.getAttribute('data-title') || '',
               category = card.getAttribute('data-category'),
               tech = card.getAttribute('data-tech'),
               image = card.getAttribute('data-image'),
@@ -567,21 +614,22 @@ document.addEventListener('click', (e) => {
         
         // Render media based on availability (video priority)
         if (video) {
-            const isEmbed = video.includes('youtube.com') || video.includes('youtu.be') || video.includes('vimeo.com') || video.includes('embed');
-            if (isEmbed) {
+            const embedURL = getEmbedUrl(video);
+            const safeVideoURL = safePublicURL(video);
+            if (embedURL) {
                 if (modalIframe) {
-                    modalIframe.src = getEmbedUrl(video)
+                    modalIframe.src = embedURL
                     modalIframe.style.display = 'block'
                 }
-            } else {
+            } else if (safeVideoURL) {
                 if (modalVideo) {
-                    modalVideo.src = video
+                    modalVideo.src = safeVideoURL
                     modalVideo.style.display = 'block'
                     modalVideo.play().catch(err => console.log('Autoplay blocked:', err))
                 }
             }
-        } else if (image) {
-            modalImg.src = image
+        } else if (safePublicURL(image)) {
+            modalImg.src = safePublicURL(image)
             modalImg.alt = title
             modalImg.style.display = 'block'
         }
@@ -589,16 +637,18 @@ document.addEventListener('click', (e) => {
         modalDesc.textContent = desc
         
         // Set links dynamically
-        if (liveLink && liveLink !== '#') {
-            modalLinkLive.href = liveLink
+        if (safePublicURL(liveLink)) {
+            modalLinkLive.href = safePublicURL(liveLink)
             modalLinkLive.style.display = 'inline-flex'
             modalLinkLive.target = '_blank'
         } else {
             modalLinkLive.style.display = 'none'
         }
         
-        modalLinkGit.href = gitLink || 'https://github.com'
+        modalLinkGit.href = /^https:\/\/github\.com\//i.test(gitLink || '') ? gitLink : 'https://github.com'
         modalLinkGit.target = '_blank'
+        modalLinkLive.rel = 'noopener noreferrer'
+        modalLinkGit.rel = 'noopener noreferrer'
 
         modalTech.innerHTML = ''
         if (tech) {
@@ -654,8 +704,8 @@ function showToast(title, message, type = 'success') {
     toast.innerHTML = `
         <div class="toast__icon"><i class='bx ${iconClass}'></i></div>
         <div class="toast__content">
-            <h4 class="toast__title">${title}</h4>
-            <p class="toast__message">${message}</p>
+        <h4 class="toast__title">${escapeHTML(title)}</h4>
+        <p class="toast__message">${escapeHTML(message)}</p>
         </div>
         <i class='bx bx-x toast__close'></i>
     `
@@ -823,18 +873,10 @@ function animateStats() {
     });
 }
 
-async function fetchGitHubProjects() {
+async function fetchGitHubProjects(repositorySummaryPromise) {
     const container = document.getElementById('github-projects-container');
     const statsContainer = document.getElementById('github-stats-container');
     if(!container) return;
-
-    // Loading State Spinner
-    container.innerHTML = `
-        <div class="loading-spinner" style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
-            <i class='bx bx-loader-alt bx-spin' style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;"></i>
-            <p>Loading projects from GitHub...</p>
-        </div>
-    `;
 
     if (statsContainer) {
         statsContainer.innerHTML = `
@@ -845,36 +887,23 @@ async function fetchGitHubProjects() {
     }
 
     try {
-        // Fetch User Profile and Repos concurrently
-        const [profileRes, reposRes] = await Promise.all([
+        // Share the repository list used by language statistics rather than requesting it twice.
+        const [profileRes, repositorySummary] = await Promise.all([
             fetch(`https://api.github.com/users/${GITHUB_USERNAME}`),
-            fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`)
+            repositorySummaryPromise
         ]);
 
-        if (!profileRes.ok || !reposRes.ok) {
+        if (!profileRes.ok) {
             throw new Error('Could not fetch GitHub data');
         }
 
         const profile = await profileRes.json();
-        const repos = await reposRes.json();
-        
-        // Filter out fork repositories
-        const publicRepos = repos.filter(repo => !repo.fork);
-        
-        if (publicRepos.length === 0) {
-            throw new Error('No public repos found');
-        }
 
         // Calculate statistics
-        const totalRepos = profile.public_repos || publicRepos.length;
-        const totalStars = publicRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+        const totalRepos = profile.public_repos || repositorySummary.repositoryCount;
+        const totalStars = repositorySummary.totalStars;
         const followers = profile.followers || 0;
-        
-        // Count React projects (case-insensitive name or description check)
-        const reactReposCount = publicRepos.filter(repo => 
-            repo.name.toLowerCase().includes('react') || 
-            (repo.description && repo.description.toLowerCase().includes('react'))
-        ).length;
+        const reactReposCount = repositorySummary.reactReposCount;
 
         // Render Statistics Grid
         if (statsContainer) {
@@ -905,8 +934,6 @@ async function fetchGitHubProjects() {
             animateStats();
         }
 
-        // Render Curated Projects from our Express API list
-        renderProjects(portfolioData.projects || [], container);
     } catch (error) {
         console.error('GitHub API fetch failed:', error);
         
@@ -915,7 +942,7 @@ async function fetchGitHubProjects() {
             statsContainer.innerHTML = `
                 <div class="work__stat-card work__stat-card--repos glass">
                     <i class='bx bx-folder work__stat-icon'></i>
-                    <h3 class="work__stat-number" data-target="${portfolioData.projects ? portfolioData.projects.length : 5}">0</h3>
+                    <h3 class="work__stat-number" data-target="${portfolioData.projects?.length ?? container.querySelectorAll('.work__card').length}">0</h3>
                     <span class="work__stat-label">Repositories</span>
                 </div>
                 <div class="work__stat-card work__stat-card--react glass">
@@ -939,8 +966,8 @@ async function fetchGitHubProjects() {
             animateStats();
         }
 
-        // Render Curated Projects even if GitHub API fails
-        renderProjects(portfolioData.projects || [], container);
+        // Retain server-rendered cards when GitHub is unavailable.
+        if (!hasServerRenderedContent) renderProjects(portfolioData.projects || [], container);
     }
 }
 
@@ -981,6 +1008,9 @@ function renderProjects(projects, container) {
 
         const card = document.createElement('div');
         card.className = 'work__card glass';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `View ${repo.name.replace(/[-_]/g, ' ')} project details`);
         card.setAttribute('data-category', category);
         
         // Modal attributes
@@ -988,28 +1018,20 @@ function renderProjects(projects, container) {
         card.setAttribute('data-category', category);
         card.setAttribute('data-tech', repo.language || 'Software');
         card.setAttribute('data-desc', repo.description || 'View the full repository codebase on GitHub.');
-        card.setAttribute('data-git', repo.html_url);
-        card.setAttribute('data-live', repo.homepage || '');
-        card.setAttribute('data-image', repo.image || '');
-        card.setAttribute('data-video', repo.video || '');
+        card.setAttribute('data-git', safePublicURL(repo.html_url));
+        card.setAttribute('data-live', safePublicURL(repo.homepage));
+        card.setAttribute('data-image', safePublicURL(repo.image));
+        card.setAttribute('data-video', safePublicURL(repo.video));
 
-        if (repo.image) {
+        if (safePublicURL(repo.image)) {
             // Render beautiful image card layout
             card.innerHTML = `
-                <img src="${repo.image}" alt="${repo.name}" class="work__img">
+                <img src="${escapeHTML(safePublicURL(repo.image))}" alt="Preview of ${escapeHTML(repo.name.replace(/[-_]/g, ' '))} project" class="work__img" loading="lazy" decoding="async">
                 
                 <div class="work__details-overlay">
-                    <span class="work__category-label">${category}</span>
-                    <h3 class="work__title" style="text-transform: capitalize;">${repo.name.replace(/[-_]/g, ' ')}</h3>
-                    <p class="work__brief" style="font-size: 0.85rem; line-height: 1.5; height: 42px; margin-bottom: var(--mb-1); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        ${repo.description || 'Access the codebase, resources, and commits history directly on GitHub.'}
-                    </p>
-                    <div class="work__tags" style="display: flex; gap: 0.5rem;">
-                        <span class="work__tag" style="display: flex; align-items: center; gap: 0.25rem;"><i class='bx bxs-star' style="color: #f1c40f;"></i> ${repo.stargazers_count || 0}</span>
-                        <span class="work__tag" style="display: flex; align-items: center; gap: 0.25rem;"><i class='bx bx-git-repo-forked'></i> ${repo.forks_count || 0}</span>
-                    </div>
+                    <h3 class="work__title" style="text-transform: capitalize;">${escapeHTML(repo.name.replace(/[-_]/g, ' '))}</h3>
                 </div>
-                
+
                 <div class="work__card-btn" style="background: ${langColor}; box-shadow: 0 4px 12px rgba(${langRGB}, 0.4);">
                     <i class='bx bx-right-arrow-alt'></i>
                 </div>
@@ -1022,22 +1044,12 @@ function renderProjects(projects, container) {
                     <div style="position: absolute; width: 80px; height: 80px; border-radius: 50%; background: ${langColor}; filter: blur(45px); opacity: 0.15; top: 20%; pointer-events: none;"></div>
                     
                     <i class='bx bx-git-branch' style="font-size: 2.75rem; color: ${langColor}; margin-bottom: 1.25rem; text-shadow: 0 0 10px rgba(${langRGB}, 0.3);"></i>
-                    <h3 class="work__title" style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; text-transform: capitalize;">${repo.name.replace(/[-_]/g, ' ')}</h3>
-                    <span class="work__category-label" style="color: ${langColor}; font-size: 0.8rem; font-weight: var(--font-semi); text-transform: uppercase; letter-spacing: 1px;">${repo.language || 'Repository'}</span>
                 </div>
                 
                 <div class="work__details-overlay">
-                    <span class="work__category-label">${category}</span>
-                    <h3 class="work__title" style="text-transform: capitalize;">${repo.name.replace(/[-_]/g, ' ')}</h3>
-                    <p class="work__brief" style="font-size: 0.85rem; line-height: 1.5; height: 42px; margin-bottom: var(--mb-1); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        ${repo.description || 'Access the codebase, resources, and commits history directly on GitHub.'}
-                    </p>
-                    <div class="work__tags" style="display: flex; gap: 0.5rem;">
-                        <span class="work__tag" style="display: flex; align-items: center; gap: 0.25rem;"><i class='bx bxs-star' style="color: #f1c40f;"></i> ${repo.stargazers_count || 0}</span>
-                        <span class="work__tag" style="display: flex; align-items: center; gap: 0.25rem;"><i class='bx bx-git-repo-forked'></i> ${repo.forks_count || 0}</span>
-                    </div>
+                    <h3 class="work__title" style="text-transform: capitalize;">${escapeHTML(repo.name.replace(/[-_]/g, ' '))}</h3>
                 </div>
-                
+
                 <div class="work__card-btn" style="background: ${langColor}; box-shadow: 0 4px 12px rgba(${langRGB}, 0.4);">
                     <i class='bx bx-right-arrow-alt'></i>
                 </div>
@@ -1074,13 +1086,46 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Run GitHub Loader on page load
+function loadWhenNearViewport(element, callback) {
+    if (!element || !('IntersectionObserver' in window)) {
+        callback();
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+        if (entries.some(entry => entry.isIntersecting)) {
+            currentObserver.disconnect();
+            callback();
+        }
+    }, { rootMargin: '300px 0px' });
+    observer.observe(element);
+}
+
+// Start external GitHub requests as their sections approach the viewport.
 document.addEventListener('DOMContentLoaded', () => {
-    fetchGitHubProjects();
+    const skillsSection = document.getElementById('skills');
+    const projectsSection = document.getElementById('portfolio');
+
+    loadWhenNearViewport(skillsSection, () => {
+        if (typeof GitHubLanguageStats !== 'undefined') {
+            GitHubLanguageStats.load().then(renderGitHubLanguageStats).catch(renderGitHubLanguageError);
+        } else {
+            renderGitHubLanguageError(new Error('Language statistics script did not load.'));
+        }
+    });
+
+    loadWhenNearViewport(projectsSection, () => {
+        const summary = typeof GitHubLanguageStats !== 'undefined'
+            ? GitHubLanguageStats.getRepositorySummary()
+            : Promise.reject(new Error('GitHub statistics script did not load.'));
+        fetchGitHubProjects(summary);
+    });
 });
 
 /*===== SCROLL REVEAL CONFIGURATION =====*/
-if(typeof ScrollReveal !== 'undefined') {
+function initializeScrollReveal() {
+    if (typeof ScrollReveal === 'undefined' || window.__portfolioScrollRevealInitialized) return;
+    window.__portfolioScrollRevealInitialized = true;
     const sr = ScrollReveal({
         origin: 'top',
         distance: '60px',
@@ -1091,3 +1136,5 @@ if(typeof ScrollReveal !== 'undefined') {
     sr.reveal('.home__data, .about__img-wrapper, .skills__header-block, .skills__category, .contact__info-card', {})
     sr.reveal('.home__img, .about__subtitle, .about__text, .about__details, .timeline__item, .exp-timeline__item, .certificates__card, .contact__form-card', { delay: 400, interval: 150 })
 }
+if (typeof ScrollReveal !== 'undefined') initializeScrollReveal();
+else window.addEventListener('load', initializeScrollReveal, { once: true });

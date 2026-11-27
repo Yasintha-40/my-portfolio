@@ -1,0 +1,12 @@
+frontend/backend/.env
+**/.env*
+frontend/backend/node_modules
+frontend/backend/data.json
+frontend/backend/.local-security-state.json
+frontend/assets/pdf/Yasintha_Randika_CV.pdf
+frontend/assets/uploads/1783915516862-830469790.pdf
+frontend/assets/uploads/1795680342064-697995500.pdf
+scripts/
+supabase/
+*.backup
+*.bak

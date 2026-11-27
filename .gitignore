@@ -1,0 +1,17 @@
+.vercel/
+.aws/
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules/
+**/.local-security-state.json
+**/backups/
+**/*.backup
+**/*.bak
+**/*.dump
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+frontend/assets/pdf/Yasintha_Randika_CV.pdf
+frontend/assets/uploads/1783915516862-830469790.pdf
+frontend/assets/uploads/1795680342064-697995500.pdf

@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Yasintha | Portfolio Admin Panel</title>
   
   <!-- CSS Stylesheets (Styles from frontend, custom admin from static folder) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap">
   <link rel="stylesheet" href="/assets/css/styles.css">
   <link rel="stylesheet" href="admin.css">
   
@@ -189,6 +193,7 @@
           <h2 style="font-size: 1.25rem;">Skills Inventory</h2>
           <button class="btn" onclick="openSkillModal()">Add New Skill <i class='bx bx-plus-circle'></i></button>
         </div>
+        <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Public language percentages are calculated from GitHub code bytes. Skills managed here appear as names without percentage ratings.</p>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
           <!-- Frontend column card -->
@@ -355,7 +360,7 @@
 
         <div class="form-group">
           <input type="number" id="skill-percentage" required min="1" max="100" placeholder=" " class="form-input">
-          <label for="skill-percentage" class="form-label">Skill Efficiency Percentage (1-100)</label>
+          <label for="skill-percentage" class="form-label">Legacy rating (not shown publicly, 1-100)</label>
         </div>
 
         <div class="form-group">

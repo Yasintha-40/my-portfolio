@@ -4,17 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- SEO Meta Tags -->
-  <title>Yasintha | Portfolio</title>
-  <meta name="description" content="Personal portfolio website of Yasintha, a software engineering student at Sri Lanka Institute of Information Technology (SLIIT). Exploring modern web designs, UI/UX, and web development.">
-  <meta name="keywords" content="Yasintha, Portfolio, SLIIT, Software Engineer, Web Developer, Sri Lanka">
-  <meta name="author" content="Yasintha">
+  <!-- SEO_METADATA -->
+  <meta name="author" content="Yasintha Randika">
 
   <!-- Google Fonts & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap">
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preload" as="style" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="preload" as="image" href="assets/img/yasintha.jpg" fetchpriority="high">
 
   <!-- Boxicons for Premium Icons -->
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -48,12 +51,12 @@
 
       <div class="nav__actions">
         <!-- Theme Toggle Button -->
-        <div class="theme-btn" id="theme-button" title="Toggle theme">
+        <div class="theme-btn" id="theme-button" title="Toggle theme" role="button" tabindex="0" aria-label="Toggle color theme">
           <i class='bx bx-moon'></i>
         </div>
         
         <!-- Mobile Toggle Button -->
-        <div class="nav__toggle" id="nav-toggle" title="Menu toggle">
+        <div class="nav__toggle" id="nav-toggle" title="Menu toggle" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-controls="nav-menu" aria-expanded="false">
           <i class='bx bx-menu'></i>
         </div>
       </div>
@@ -81,7 +84,7 @@
               </defs>
               <g mask="url(#mask0)">
                 <!-- Reused profile photo -->
-                <image class="home__blob-img" x="0" y="0" width="479" height="467" preserveAspectRatio="xMidYMid slice" href="assets/img/yasintha.jpg"/>
+                <image class="home__blob-img" x="0" y="0" width="479" height="467" preserveAspectRatio="xMidYMid slice" href="assets/img/yasintha.jpg" role="img" aria-label="Portrait of Yasintha Randika"/>
               </g>
             </svg>
           </div>
@@ -97,7 +100,7 @@
 
           <div class="home__btns">
             <a href="#education" class="btn">View Education <i class='bx bx-graduation'></i></a>
-            <a href="assets/pdf/Yasintha_Randika_CV.pdf" download class="btn btn-secondary">Download CV <i class='bx bx-download'></i></a>
+            <a href="#contact" class="btn btn-secondary">Request CV <i class='bx bx-download'></i></a>
           </div>
 
           <div class="home__social">
@@ -116,7 +119,7 @@
 
       <div class="about__container bd-grid">
         <div class="about__img-wrapper">
-          <img src="assets/img/yasintha.jpg" alt="Yasintha Profile" class="about__img">
+          <img src="assets/img/yasintha.jpg" alt="Yasintha Randika, software development intern" class="about__img" loading="lazy" decoding="async" width="960" height="958">
         </div>
         
         <div>
@@ -141,7 +144,7 @@
 
           <div class="about__buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <a href="#contact" class="btn">Message Me <i class='bx bx-send'></i></a>
-            <a href="assets/pdf/Yasintha_Randika_CV.pdf" download class="btn btn-secondary">Download CV <i class='bx bx-download'></i></a>
+            <a href="#contact" class="btn btn-secondary">Request CV <i class='bx bx-download'></i></a>
           </div>
         </div>                                   
       </div>
@@ -153,7 +156,7 @@
 
       <div class="skills__header-block bd-grid">
         <p class="skills__description">
-          Here is a breakdown of the technological stack and programming languages I work with. I build clean foundations, develop responsive applications, and continuously expand my skill set.
+          Language percentages show the share of code bytes across my public, non-fork GitHub repositories. My other skills and technologies are listed separately.
         </p>
       </div>
 
@@ -309,15 +312,15 @@
   <!--===== PROJECT MODAL =====-->
   <div class="modal" id="portfolio-modal">
     <div class="modal__card glass">
-      <i class='bx bx-x modal__close' id="modal-close"></i>
-      <img src="assets/img/work1.jpg" alt="Project Preview" class="modal__img" id="modal-img">
+      <i class='bx bx-x modal__close' id="modal-close" role="button" tabindex="0" aria-label="Close project details"></i>
+      <img alt="Selected project preview" class="modal__img" id="modal-img" loading="lazy" decoding="async">
       
       <!-- Project Video Elements -->
       <video id="modal-video" controls class="modal__video" style="display:none; width: 100%; height: 250px; border-radius: 1rem; margin-bottom: var(--mb-1-5); border: 1px solid var(--border-color); object-fit: cover; background: #000;"></video>
       <iframe id="modal-iframe" class="modal__iframe" style="display:none; width: 100%; height: 250px; border-radius: 1rem; margin-bottom: var(--mb-1-5); border: 1px solid var(--border-color); background: #000;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
       <span class="modal__category" id="modal-category">Web App</span>
-      <h3 class="modal__title" id="modal-title">Sri Lanka Tourism Portal</h3>
+      <h2 class="modal__title" id="modal-title">Sri Lanka Tourism Portal</h2>
       
       <div class="modal__tech" id="modal-tech">
         <!-- Populated via Javascript -->
@@ -340,9 +343,10 @@
   </div>
 
   <!--===== SCROLL REVEAL =====-->
-  <script src="https://unpkg.com/scrollreveal"></script>
+  <script src="https://unpkg.com/scrollreveal" async></script>
 
   <!--===== MAIN JS =====-->
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/github-language-stats.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
 </body>
 </html>
