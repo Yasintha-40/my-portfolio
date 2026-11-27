@@ -86,3 +86,6 @@ The project combines a modern frontend portfolio with a Node.js backend admin pa
 4. Check `http://localhost:8080/robots.txt` and `http://localhost:8080/sitemap.xml`; the sitemap should contain only the homepage. To simulate production metadata locally, temporarily set `SITE_URL` to your actual production HTTPS origin, restart the server, then request `curl.exe -H "Host: YOUR_DOMAIN" http://localhost:8080/`, `/robots.txt`, and `/sitemap.xml` with the same Host header. Replace `YOUR_DOMAIN` with the hostname from `SITE_URL`. A localhost request with a production `SITE_URL` remains `noindex`.
 5. After Vercel deployment, inspect the homepage source for one canonical URL, one title and description, Open Graph and Twitter tags, and Person JSON-LD. Confirm `/admin` and `/api/portfolio` return `X-Robots-Tag: noindex, nofollow`, and check a preview deployment is `noindex`.
 
+## Deployment
+
+Automatic deployment is configured using GitHub and Vercel.
